@@ -1,7 +1,10 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CollisionHandler : MonoBehaviour
 {
+
+[SerializeField] float delay = 1f;
 
   void OnCollisionEnter(Collision other) 
   {
@@ -11,15 +14,45 @@ public class CollisionHandler : MonoBehaviour
           Debug.Log("Friendly");
           break;
         case "Finish":
-            Debug.Log("Finish");
-            break;
-        case "Fuel":
-            Debug.Log("Fuel");
+            StartSuccessSequence();
             break;
         
         default:
-            Debug.Log("Anything else");
+            StartCrashSequence();
             break;
     }
+  }
+
+  void StartCrashSequence()
+  {
+    //todo sound effect upon crash
+    // to do particle effect uppon crash
+    GetComponent<Movement>().enabled = false;
+    Invoke("ReloadLevel", delay);
+  }
+
+   void StartSuccessSequence()
+  {
+    //todo sound effect upon success
+    // to do particle effect uppon success
+    GetComponent<Movement>().enabled = false;
+    Invoke("LoadNextLevel", delay);
+  }
+  void LoadNextLevel()
+  {
+    int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+    int nextSceneIndex = currentSceneIndex +1 ;
+    if ( nextSceneIndex == SceneManager.sceneCountInBuildSettings)
+    {
+        nextSceneIndex = 0;
+    }
+    
+    SceneManager.LoadScene(nextSceneIndex);
+  }
+
+  void ReloadLevel()
+  {
+    int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+    SceneManager.LoadScene(currentSceneIndex);
   }
 }
