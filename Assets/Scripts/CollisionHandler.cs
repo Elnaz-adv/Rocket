@@ -4,10 +4,44 @@ using UnityEngine.SceneManagement;
 public class CollisionHandler : MonoBehaviour
 {
 
-[SerializeField] float delay = 1f;
+  [SerializeField] float delay = 1f;
+  [SerializeField] AudioClip crashEngine;
+  [SerializeField] AudioClip successEngine;
+  [SerializeField] ParticleSystem crashParticles;
+  [SerializeField] ParticleSystem successParticles;
+
+  AudioSource audioSource;
+  
+
+  bool isTrasiting = false;
+  bool CollisionDisabled = false;
+
+  void Start()
+    {
+       audioSource = GetComponent<AudioSource>();
+    }
+  void Update() 
+  {
+    RespondToDebugKeys();
+  }
+
+  void RespondToDebugKeys()
+  {
+    if(Input.GetKeyDown(KeyCode.L))
+    {
+      LoadNextLevel();
+    }
+    if(Input.GetKeyDown(KeyCode.C))
+    {
+      CollisionDisabled = !CollisionDisabled; //toggle colision
+    }
+
+
+  }
 
   void OnCollisionEnter(Collision other) 
   {
+    if(isTrasiting || CollisionDisabled){ return;}
     switch (other.gameObject.tag)
     {
         case "Friendly":
@@ -25,16 +59,20 @@ public class CollisionHandler : MonoBehaviour
 
   void StartCrashSequence()
   {
-    //todo sound effect upon crash
-    // to do particle effect uppon crash
+    isTrasiting = true;
+    audioSource.Stop();
+    audioSource.PlayOneShot(crashEngine);
+    crashParticles.Play();
     GetComponent<Movement>().enabled = false;
     Invoke("ReloadLevel", delay);
   }
 
    void StartSuccessSequence()
   {
-    //todo sound effect upon success
-    // to do particle effect uppon success
+    isTrasiting = true;
+    audioSource.Stop();
+    audioSource.PlayOneShot(successEngine);
+    successParticles.Play();
     GetComponent<Movement>().enabled = false;
     Invoke("LoadNextLevel", delay);
   }
